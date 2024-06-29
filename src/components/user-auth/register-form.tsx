@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+
 import { registerUser } from "@/data/register-actions";
+import { ThreeDots } from "react-loader-spinner";
 
 import {
   Card,
@@ -24,25 +26,40 @@ const RegisterForm = () => {
         <div className="flex flex-col space-y-1">
           <Label htmlFor="email">Email:</Label>
           <Input type="text" name="email" />
-          {state?.email && (
-            <CardDescription className="text-red-500 font-semibold m-b1">
-              {state.email}
+          {state?.errors?.email && (
+            <CardDescription className="text-red-500  m-b1">
+              {state.errors.email}
             </CardDescription>
           )}
         </div>
         <div className="flex flex-col space-y-1">
           <Label htmlFor="password">Password:</Label>
           <Input type="password" name="password" />
-          {state?.password && (
-            <CardDescription className="text-red-500 font-semibold">
-              {state.password}
+          {state?.errors?.password && (
+            <CardDescription className="text-red-500 ">
+              {state.errors.password}
             </CardDescription>
           )}
         </div>
       </div>
+
+      {state && !state.errors && (
+        <p
+          className={`${
+            state.success ? "text-green-500" : "text-red-500"
+          } m-1 `}
+        >
+          {state.message}
+        </p>
+      )}
+
       <div className="flex flex-row justify-end m-2">
         <Button type="submit" disabled={pending}>
-          {pending ? "Registering..." : "Register"}
+          {pending ? (
+            <ThreeDots height={40} width={40} color={"gray"} />
+          ) : (
+            "Register"
+          )}
         </Button>
       </div>
     </form>
