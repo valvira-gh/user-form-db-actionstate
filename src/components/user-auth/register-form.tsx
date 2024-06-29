@@ -25,7 +25,7 @@ const RegisterForm = () => {
           <Label htmlFor="email">Email:</Label>
           <Input type="text" name="email" />
           {state?.email && (
-            <CardDescription className="text-red-500">
+            <CardDescription className="text-red-500 font-semibold m-b1">
               {state.email}
             </CardDescription>
           )}
