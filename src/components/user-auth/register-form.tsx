@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 
-import { registerUser } from "@/data/register-actions";
+import { registerUser } from "@/lib/register-actions";
 import { ThreeDots } from "react-loader-spinner";
 
 import {
@@ -22,7 +23,7 @@ const RegisterForm = () => {
 
   return (
     <form action={formAction} className="">
-      <div className="flex flex-col space-y-2">
+      <div className="flex flex-col space-y-1">
         <div className="flex flex-col space-y-1">
           <Label htmlFor="email">Email:</Label>
           <Input type="text" name="email" />
@@ -75,6 +76,14 @@ const RegisterCard = () => {
       <CardContent>
         <RegisterForm />
       </CardContent>
+      <CardFooter>
+        <p className="text-slate-400">
+          If you already have an account, <br />
+          <Link href="/login" className="text-blue-500 font-semibold">
+            Login user
+          </Link>
+        </p>
+      </CardFooter>
     </Card>
   );
 };
