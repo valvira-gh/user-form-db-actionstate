@@ -36,10 +36,22 @@ const LoginForm = () => {
         <div className="flex flex-col space-y-1">
           <Label htmlFor="email">Email:</Label>
           <Input type="text" name="email" />
+          {/* display email error message */}
+          {error.errors && error.errors.email && (
+            <CardDescription className="text-red-500 text-md">
+              {error.errors.email}
+            </CardDescription>
+          )}
         </div>
         <div className="flex flex-col space-y-1">
           <Label htmlFor="password">Password:</Label>
           <Input type="password" name="password" />
+          {/* display password error message */}
+          {error.errors && error.errors.password && (
+            <CardDescription className="text-red-500 text-md">
+              {error.errors.password}
+            </CardDescription>
+          )}
         </div>
       </div>
 

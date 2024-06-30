@@ -5,36 +5,45 @@ import { getUserByEmail } from "@/data/get-users";
 import { getPasswordByUserId } from "@/data/get-password";
 
 const bcrypt = require("bcrypt");
-import { db } from "@/db";
 
 const FormData = z.object({
-  email: z.string(),
-  password: z.string(),
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z
+    .string()
+    .min(8, { message: "Password is invalid." })
+    .max(100, { message: "Password is invalid." }),
 });
 
 export const loginUser = async (prevState: any, queryData: FormData) => {
-  const formData = FormData.safeParse({
+  // Get the form data from the query data
+  // and parse it with the FormData schema
+  const result = FormData.safeParse({
     email: queryData.get("email"),
     password: queryData.get("password"),
   });
-  console.log("Zod object of form data after parsing:", formData);
+  console.log("Zod safeParse result:", result);
 
-  if (!formData.success) {
-    return { message: "Something went wrong with the form data." };
-  } else if (formData.data.email === undefined || null) {
-    return { message: "Email is required." };
-  } else if (formData.data.password === undefined || null) {
-    return { message: "Password is required." };
+  if (!result.success) {
+    const errors = result.error.issues.reduce((acc: any, issue: any) => {
+      acc[issue.path[0]] = issue.message;
+      return acc;
+    }, {});
+    return { success: false, errors };
   }
 
-  if (
-    typeof formData.data.email !== "string" ||
-    typeof formData.data.password !== "string"
-  ) {
-    return { message: "Invalid form data." };
+  const formData = result.data;
+
+  console.log("FormData:", formData);
+
+  // Check if the email and password are provided
+  // If not
+  if (!formData.email === undefined || null) {
+    return { message: "Email is required" };
+  } else if (formData.password === undefined || null) {
+    return { message: "Password is required" };
   }
 
-  const user = await getUserByEmail(formData.data.email);
+  const user = await getUserByEmail(formData.email);
   console.log("User:", user);
   if (user === null) {
     return { message: "User not found." };
@@ -50,10 +59,7 @@ export const loginUser = async (prevState: any, queryData: FormData) => {
         "Hashed password that was get from db is unexpectedly not type of 'string', wtf?",
     };
   } else {
-    const match = await bcrypt.compare(
-      formData.data.password,
-      passwordObject.hash
-    );
+    const match = await bcrypt.compare(formData.password, passwordObject.hash);
     console.log("Match:", match);
 
     if (match === false) {
