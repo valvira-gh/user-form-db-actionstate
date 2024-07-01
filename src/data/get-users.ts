@@ -5,7 +5,7 @@ export const getAllUsers = async () => {
 };
 
 export const getUserByEmail = async (email: string | undefined) => {
-  return await db.user.findUnique({
+  return await db.user.findFirst({
     where: {
       email: email,
     },

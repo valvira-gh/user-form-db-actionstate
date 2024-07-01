@@ -3,6 +3,7 @@ import { z } from "zod";
 import { User, Password } from "@prisma/client";
 import { getUserByEmail } from "@/data/get-users";
 import { getPasswordByUserId } from "@/data/get-password";
+import { updateUser } from "@/data/update-user";
 
 const bcrypt = require("bcrypt");
 
@@ -43,29 +44,27 @@ export const loginUser = async (prevState: any, queryData: FormData) => {
     return { message: "Password is required" };
   }
 
-  const user = await getUserByEmail(formData.email);
+  const user: User | null = await getUserByEmail(formData.email);
   console.log("User:", user);
   if (user === null) {
     return { message: "User not found." };
   }
 
-  const passwordObject = await getPasswordByUserId(user.id);
-  console.log("Password:", passwordObject);
-  if (passwordObject === null) {
-    return { message: "Password not found." };
-  } else if (typeof passwordObject.hash !== "string") {
-    return {
-      message:
-        "Hashed password that was get from db is unexpectedly not type of 'string', wtf?",
-    };
-  } else {
-    const match = await bcrypt.compare(formData.password, passwordObject.hash);
-    console.log("Match:", match);
+  const passwordTable = await getPasswordByUserId(user.id);
+  console.log("Password:", passwordTable);
+  const hashedPassword = passwordTable?.hash;
 
-    if (match === false) {
-      return { message: "Password is incorrect.", success: false };
-    } else {
-      return { message: "Login successful!", success: true };
-    }
+  if (hashedPassword === undefined) {
+    return { message: "Password not found." };
+  }
+
+  const match = await bcrypt.compare(formData.password, hashedPassword);
+
+  if (match === false) {
+    return { message: "Password is incorrect.", success: false };
+  } else {
+    const updatedUser = await updateUser(user);
+    console.log("Updated user:", updatedUser);
+    return { message: "Login successful!", success: true };
   }
 };
